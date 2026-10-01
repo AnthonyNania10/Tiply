@@ -96,6 +96,7 @@ export function HistoryView() {
               <TextInput
                 id="range-start"
                 type="date"
+                className="px-3"
                 value={customRange.start}
                 max={customRange.end}
                 onChange={(event) =>
@@ -114,6 +115,7 @@ export function HistoryView() {
               <TextInput
                 id="range-end"
                 type="date"
+                className="px-3"
                 value={customRange.end}
                 onChange={(event) =>
                   setCustomRange((current) => ({

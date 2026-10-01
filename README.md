@@ -117,17 +117,19 @@ Logging a shift is the one thing the app has to be great at, so the form is
 tuned for a tired worker standing outside at 1am:
 
 - **Date and workplace are prefilled** — today, plus the primary workplace from
-  the profile. Today/Yesterday chips cover almost every real case.
+  the profile. Today / Yesterday / Another day chips cover every real case, and
+  the date picker only appears when it is actually needed.
 - **Hours have one-tap chips** (4h–8h) alongside a free-text field.
 - **Cash and card tips sit side by side**, with `inputMode="decimal"` so phones
   open the number keypad, and large touch targets.
-- **Base wage and notes are collapsed** behind "Edit base wage & notes" — they
-  are prefilled from the workplace and rarely need changing.
-- **Totals update live**: total earnings, tips, base pay, and effective hourly
-  rate recalculate on every keystroke.
-- **Saving keeps you in place** with a confirmation and a form reset, so logging
-  a second job's shift is immediate.
+- **Base wage and notes are collapsed** below the save button — they are
+  prefilled from the workplace and rarely need changing.
+- **Totals update live** in a block directly above Save, so total earnings,
+  tips, base pay, and the effective hourly rate stay on screen while typing.
+- **Saving keeps you in place**: a floating confirmation appears (no layout
+  shift) and the form resets, so logging a second job's shift is immediate.
 
+Everything from the date chips through the Save button fits on one phone screen.
 The typical path is: open → tap an hours chip → type cash → type card → Save.
 
 ---
