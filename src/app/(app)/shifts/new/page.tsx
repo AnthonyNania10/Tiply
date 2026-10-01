@@ -9,11 +9,10 @@ export const metadata: Metadata = {
 
 export default function AddShiftPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader
-        eyebrow="New entry"
         title="Add shift"
-        description="Date and workplace are already filled in — enter hours and tips, then save."
+        description="Enter hours and tips — the rest is prefilled."
       />
       <AddShiftForm />
     </div>

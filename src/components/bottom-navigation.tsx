@@ -14,11 +14,12 @@ export function BottomNavigation() {
       aria-label="Primary"
       className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pt-1 backdrop-blur-sm lg:hidden"
     >
-      <ul className="mx-auto flex max-w-xl items-end justify-around px-2">
+      <ul className="mx-auto flex max-w-xl items-center justify-around px-2">
         {NAV_ITEMS.map((item) => {
           const isActive = isActivePath(pathname, item.href);
           const Icon = item.icon;
 
+          // The add action stays inside the bar so it never covers page content.
           if (item.isPrimary) {
             return (
               <li key={item.href} className="flex-1">
@@ -26,9 +27,9 @@ export function BottomNavigation() {
                   href={item.href}
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
-                  className="mx-auto -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-raised transition hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white shadow-raised transition hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
-                  <Icon aria-hidden className="h-7 w-7" strokeWidth={2.5} />
+                  <Icon aria-hidden className="h-6 w-6" strokeWidth={2.5} />
                 </Link>
               </li>
             );

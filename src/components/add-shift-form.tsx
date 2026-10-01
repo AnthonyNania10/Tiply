@@ -2,13 +2,13 @@
 
 import { Check, ChevronRight, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AmountInput, Field, Select, TextArea, TextInput } from "@/components/ui/field";
 import { addDays, formatShiftDate, todayISO } from "@/lib/date";
 import { shiftTotals } from "@/lib/earnings";
-import { formatCurrency, formatHours } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { cn, parseNumericInput, roundTo } from "@/lib/utils";
 import { useTiply } from "@/hooks/use-tiply";
 import type { ShiftDraft } from "@/types";
@@ -50,6 +50,7 @@ export function AddShiftForm() {
       defaultWorkplace?.defaultHourlyWage ?? profile.defaultHourlyWage,
     ),
   );
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedTotal, setSavedTotal] = useState<number | null>(null);
@@ -69,6 +70,8 @@ export function AddShiftForm() {
   );
 
   const totals = shiftTotals(draft);
+  const today = todayISO();
+  const yesterday = addDays(today, -1);
 
   function update(patch: Partial<FormState>) {
     setForm((current) => ({ ...current, ...patch }));
@@ -98,10 +101,7 @@ export function AddShiftForm() {
     setError(null);
     setIsSaving(true);
     try {
-      await addShift({
-        ...draft,
-        hoursWorked: roundTo(draft.hoursWorked, 2),
-      });
+      await addShift({ ...draft, hoursWorked: roundTo(draft.hoursWorked, 2) });
       setSavedTotal(totals.totalEarnings);
       setForm((current) => ({
         ...initialState(current.workplaceId, parseNumericInput(current.hourlyWage)),
@@ -115,12 +115,15 @@ export function AddShiftForm() {
 
   if (workplaces.length === 0) return null;
 
+  const isCustomDate = form.date !== today && form.date !== yesterday;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Fixed so confirming a save never reflows the form underneath it. */}
       {savedTotal !== null ? (
         <div
           role="status"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-brand/20 bg-brand-soft px-4 py-3"
+          className="fixed top-18 left-1/2 z-50 flex w-[calc(100%-2.5rem)] max-w-xl -translate-x-1/2 flex-wrap items-center justify-between gap-3 rounded-3xl border border-brand/20 bg-brand-soft px-4 py-3 shadow-card lg:top-6"
         >
           <p className="flex items-center gap-2 text-sm font-medium text-brand-dark">
             <Check aria-hidden className="h-4 w-4" />
@@ -137,35 +140,52 @@ export function AddShiftForm() {
         </div>
       ) : null}
 
-      <div className="space-y-4 rounded-3xl border border-line bg-surface p-5 shadow-card">
-        <Field label="Date" htmlFor="shift-date">
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              {[
-                { value: todayISO(), label: "Today" },
-                { value: addDays(todayISO(), -1), label: "Yesterday" },
-              ].map((option) => (
-                <Chip
-                  key={option.value}
-                  isActive={form.date === option.value}
-                  onClick={() => update({ date: option.value })}
-                >
-                  {option.label}
-                </Chip>
-              ))}
-              <span className="self-center text-xs text-subtle">
-                {formatShiftDate(form.date)}
-              </span>
-            </div>
-            <TextInput
-              id="shift-date"
-              type="date"
-              value={form.date}
-              max={todayISO()}
-              onChange={(event) => update({ date: event.target.value })}
-            />
+      <div className="space-y-3.5 rounded-3xl border border-line bg-surface p-4 shadow-card sm:p-5">
+        <fieldset>
+          <legend className="mb-1.5 block text-sm font-medium text-muted">
+            Date
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            <Chip
+              isActive={form.date === today}
+              onClick={() => {
+                setShowDatePicker(false);
+                update({ date: today });
+              }}
+            >
+              Today
+            </Chip>
+            <Chip
+              isActive={form.date === yesterday}
+              onClick={() => {
+                setShowDatePicker(false);
+                update({ date: yesterday });
+              }}
+            >
+              Yesterday
+            </Chip>
+            <Chip
+              isActive={isCustomDate || showDatePicker}
+              onClick={() => setShowDatePicker((open) => !open)}
+            >
+              {isCustomDate ? formatShiftDate(form.date) : "Another day"}
+            </Chip>
           </div>
-        </Field>
+          {showDatePicker || isCustomDate ? (
+            <div className="mt-2">
+              <label htmlFor="shift-date" className="sr-only">
+                Shift date
+              </label>
+              <TextInput
+                id="shift-date"
+                type="date"
+                value={form.date}
+                max={today}
+                onChange={(event) => update({ date: event.target.value })}
+              />
+            </div>
+          ) : null}
+        </fieldset>
 
         <fieldset>
           <legend className="mb-1.5 block text-sm font-medium text-muted">
@@ -228,7 +248,48 @@ export function AddShiftForm() {
             />
           </Field>
         </div>
+      </div>
 
+      {/* Live totals sit with the Save button so they stay on screen while typing. */}
+      <div className="rounded-3xl border border-brand/20 bg-brand-soft p-4 sm:p-5">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-sm font-medium text-brand-dark">
+            Total shift earnings
+          </p>
+          <p className="tabular text-2xl font-semibold text-brand-dark">
+            {formatCurrency(totals.totalEarnings, profile.currency)}
+          </p>
+        </div>
+        <dl className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-brand-dark/75">
+          <Figure label="Tips" value={formatCurrency(totals.tips, profile.currency)} />
+          <Figure
+            label="Base pay"
+            value={formatCurrency(totals.basePay, profile.currency)}
+          />
+          <Figure
+            label="Effective"
+            value={`${formatCurrency(totals.effectiveHourlyRate, profile.currency)}/hr`}
+          />
+        </dl>
+
+        {error ? (
+          <p role="alert" className="mt-3 text-sm text-red-600">
+            {error}
+          </p>
+        ) : null}
+
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSaving}
+          className="mt-3 w-full"
+        >
+          <Plus aria-hidden className="h-5 w-5" />
+          {isSaving ? "Saving…" : "Save shift"}
+        </Button>
+      </div>
+
+      <div className="rounded-3xl border border-line bg-surface p-4 shadow-card sm:p-5">
         <button
           type="button"
           onClick={() => setShowDetails((open) => !open)}
@@ -239,7 +300,7 @@ export function AddShiftForm() {
         </button>
 
         {showDetails ? (
-          <div className="space-y-4 border-t border-line pt-4">
+          <div className="mt-4 space-y-4 border-t border-line pt-4">
             <Field
               label="Base hourly wage"
               htmlFor="shift-wage"
@@ -278,60 +339,16 @@ export function AddShiftForm() {
           </div>
         ) : null}
       </div>
-
-      <div className="rounded-3xl border border-line bg-surface p-5 shadow-card">
-        <div className="flex items-baseline justify-between">
-          <p className="text-sm text-muted">Total shift earnings</p>
-          <p className="tabular text-2xl font-semibold text-ink">
-            {formatCurrency(totals.totalEarnings, profile.currency)}
-          </p>
-        </div>
-        <dl className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted">
-          <div>
-            <dt>Tips</dt>
-            <dd className="tabular font-medium text-ink">
-              {formatCurrency(totals.tips, profile.currency)}
-            </dd>
-          </div>
-          <div>
-            <dt>Base pay</dt>
-            <dd className="tabular font-medium text-ink">
-              {formatCurrency(totals.basePay, profile.currency)}
-            </dd>
-          </div>
-          <div>
-            <dt>Effective rate</dt>
-            <dd className="tabular font-medium text-ink">
-              {formatCurrency(totals.effectiveHourlyRate, profile.currency)}/hr
-            </dd>
-          </div>
-        </dl>
-        {draft.hoursWorked > 0 ? (
-          <p className="mt-3 text-xs text-subtle">
-            {formatHours(draft.hoursWorked)} at{" "}
-            {formatCurrency(draft.hourlyWage, profile.currency)}/hr base
-          </p>
-        ) : null}
-      </div>
-
-      {error ? (
-        <p role="alert" className="text-sm text-red-600">
-          {error}
-        </p>
-      ) : null}
-
-      <div className="pb-safe sticky bottom-16 z-20 lg:static lg:pb-0">
-        <Button
-          type="submit"
-          size="lg"
-          disabled={isSaving}
-          className="w-full shadow-raised"
-        >
-          <Plus aria-hidden className="h-5 w-5" />
-          {isSaving ? "Saving…" : "Save shift"}
-        </Button>
-      </div>
     </form>
+  );
+}
+
+function Figure({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <dt>{label}</dt>
+      <dd className="tabular font-semibold">{value}</dd>
+    </div>
   );
 }
 
@@ -342,7 +359,7 @@ function Chip({
 }: {
   isActive: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <button
