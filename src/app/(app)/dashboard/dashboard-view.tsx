@@ -62,6 +62,29 @@ export function DashboardView() {
     PERIODS.find((option) => option.value === period)?.label ?? "This month";
   const firstName = profile.fullName.split(" ")[0];
 
+  if (shifts.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Dashboard"
+          title={`Hey, ${firstName}`}
+          description="Log your first shift to start tracking what you make."
+          action={
+            <ButtonLink href="/shifts/new" className="hidden lg:inline-flex">
+              <Plus aria-hidden className="h-5 w-5" />
+              Add Shift
+            </ButtonLink>
+          }
+        />
+        <EmptyState
+          title="No shifts yet"
+          description="Your earnings, hourly averages, and recent shifts will appear here after you log your first shift."
+          action={<ButtonLink href="/shifts/new">Add your first shift</ButtonLink>}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
