@@ -7,7 +7,9 @@ import { useMemo } from "react";
 import { EarningsChart } from "@/components/earnings-chart";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/skeleton";
 import { useTiply } from "@/hooks/use-tiply";
 import { thisYearRange, todayISO } from "@/lib/date";
@@ -36,6 +38,24 @@ export function TaxView() {
     profile.taxSetAsidePercent,
   );
 
+  if (yearShifts.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Tax & income"
+          title={`${year} income summary`}
+          description="A running total of what you've reported in Tiply this year."
+        />
+        <TaxDisclaimer />
+        <EmptyState
+          title="No reported income yet"
+          description="Once you log a shift, Tiply will summarize your reported income and estimated set-aside here."
+          action={<ButtonLink href="/shifts/new">Add your first shift</ButtonLink>}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -44,15 +64,7 @@ export function TaxView() {
         description="A running total of what you've reported in Tiply this year."
       />
 
-      <div className="flex items-start gap-3 rounded-3xl border border-caution/25 bg-caution/5 p-4">
-        <Info aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-caution" />
-        <p className="text-xs leading-relaxed text-muted">
-          <span className="font-semibold text-ink">These are estimates, not tax advice.</span>{" "}
-          Tiply does not file anything for you and does not know your filing
-          status, deductions, or local rules. Talk to a tax professional before
-          making decisions.
-        </p>
-      </div>
+      <TaxDisclaimer />
 
       <div className="space-y-3">
         <StatCard
@@ -90,7 +102,7 @@ export function TaxView() {
       <Card>
         <CardHeader
           title="Estimated taxes to set aside"
-          description="Placeholder calculation: a flat percentage of reported income."
+          description="A simple flat percentage of reported income."
         />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -133,6 +145,22 @@ export function TaxView() {
           height={220}
         />
       </Card>
+    </div>
+  );
+}
+
+function TaxDisclaimer() {
+  return (
+    <div className="flex items-start gap-3 rounded-3xl border border-caution/25 bg-caution/5 p-4">
+      <Info aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-caution" />
+      <p className="text-xs leading-relaxed text-muted">
+        <span className="font-semibold text-ink">
+          These are estimates, not tax advice.
+        </span>{" "}
+        Tiply does not file anything for you and does not know your filing
+        status, deductions, or local rules. Talk to a tax professional before
+        making decisions.
+      </p>
     </div>
   );
 }

@@ -13,7 +13,13 @@ import { MOCK_PROFILE, MOCK_WORKPLACES } from "@/data/mock-data";
 import { profileRepository } from "@/data/profile-repository";
 import { shiftRepository } from "@/data/shift-repository";
 import { sortByDateDesc } from "@/lib/earnings";
-import type { Shift, ShiftDraft, UserProfile, Workplace } from "@/types";
+import type {
+  Shift,
+  ShiftDraft,
+  UserProfile,
+  Workplace,
+  WorkplaceDraft,
+} from "@/types";
 
 export interface TiplyStore {
   isLoading: boolean;
@@ -21,6 +27,7 @@ export interface TiplyStore {
   shifts: Shift[];
   workplaces: Workplace[];
   profile: UserProfile;
+  addWorkplace: (draft: WorkplaceDraft) => Promise<Workplace>;
   addShift: (draft: ShiftDraft) => Promise<Shift>;
   deleteShift: (id: string) => Promise<void>;
   updateProfile: (patch: Partial<UserProfile>) => Promise<void>;
@@ -66,6 +73,12 @@ export function TiplyProvider({ children }: { children: ReactNode }) {
     return created;
   }, []);
 
+  const addWorkplace = useCallback(async (draft: WorkplaceDraft) => {
+    const created = await shiftRepository.createWorkplace(draft);
+    setWorkplaces((current) => [...current, created]);
+    return created;
+  }, []);
+
   const deleteShift = useCallback(async (id: string) => {
     await shiftRepository.deleteShift(id);
     setShifts((current) => current.filter((shift) => shift.id !== id));
@@ -87,6 +100,7 @@ export function TiplyProvider({ children }: { children: ReactNode }) {
       shifts,
       workplaces,
       profile,
+      addWorkplace,
       addShift,
       deleteShift,
       updateProfile,
@@ -94,6 +108,7 @@ export function TiplyProvider({ children }: { children: ReactNode }) {
       workplaceName: (id: string) => names.get(id) ?? "Unassigned",
     };
   }, [
+    addWorkplace,
     addShift,
     deleteShift,
     isLoading,

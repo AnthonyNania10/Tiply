@@ -1,11 +1,10 @@
-import { generateSeedShifts, MOCK_PROFILE } from "@/data/mock-data";
-import type { Shift, UserProfile } from "@/types";
+import { MOCK_PROFILE, MOCK_WORKPLACES } from "@/data/mock-data";
+import type { Shift, UserProfile, Workplace } from "@/types";
 
 /**
  * Demo persistence layer.
  *
- * Seed shifts are regenerated relative to today on every read so the demo is
- * never stale, while anything the user adds or deletes lives in
+ * User-entered shifts, workplaces, and profile settings live in
  * `localStorage`. Replacing this file with Supabase queries is the only change
  * needed to move the app onto a real database.
  */
@@ -15,12 +14,14 @@ const STORAGE_KEY = "tiply.demo.v1";
 interface StoredState {
   addedShifts: Shift[];
   removedShiftIds: string[];
+  addedWorkplaces: Workplace[];
   profile: UserProfile | null;
 }
 
 const EMPTY_STATE: StoredState = {
   addedShifts: [],
   removedShiftIds: [],
+  addedWorkplaces: [],
   profile: null,
 };
 
@@ -38,6 +39,7 @@ function readState(): StoredState {
     return {
       addedShifts: parsed.addedShifts ?? [],
       removedShiftIds: parsed.removedShiftIds ?? [],
+      addedWorkplaces: parsed.addedWorkplaces ?? [],
       profile: parsed.profile ?? null,
     };
   } catch {
@@ -57,8 +59,7 @@ function writeState(state: StoredState): void {
 export function loadShifts(): Shift[] {
   const { addedShifts, removedShiftIds } = readState();
   const removed = new Set(removedShiftIds);
-  const seeded = generateSeedShifts().filter((shift) => !removed.has(shift.id));
-  return [...seeded, ...addedShifts];
+  return addedShifts.filter((shift) => !removed.has(shift.id));
 }
 
 export function persistAddedShift(shift: Shift): void {
@@ -74,6 +75,19 @@ export function persistRemovedShift(id: string): void {
     removedShiftIds: state.removedShiftIds.includes(id)
       ? state.removedShiftIds
       : [...state.removedShiftIds, id],
+  });
+}
+
+export function loadWorkplaces(): Workplace[] {
+  const { addedWorkplaces } = readState();
+  return [...MOCK_WORKPLACES, ...addedWorkplaces];
+}
+
+export function persistAddedWorkplace(workplace: Workplace): void {
+  const state = readState();
+  writeState({
+    ...state,
+    addedWorkplaces: [...state.addedWorkplaces, workplace],
   });
 }
 

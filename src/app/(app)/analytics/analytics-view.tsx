@@ -7,7 +7,9 @@ import { TipMixChart } from "@/components/charts/tip-mix-chart";
 import { EarningsChart } from "@/components/earnings-chart";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { LoadingScreen } from "@/components/ui/skeleton";
 import { useTiply } from "@/hooks/use-tiply";
@@ -50,6 +52,23 @@ export function AnalyticsView() {
 
   if (isLoading) return <LoadingScreen label="Loading your analytics" />;
 
+  if (shifts.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Analytics"
+          title="Income patterns"
+          description="See how your earnings change across shifts, weeks, and workplaces."
+        />
+        <EmptyState
+          title="Your analytics will appear here"
+          description="Log your first shift to start seeing hourly averages, best days, and tip trends."
+          action={<ButtonLink href="/shifts/new">Add your first shift</ButtonLink>}
+        />
+      </div>
+    );
+  }
+
   const bestWeekday = byWeekday.reduce(
     (top, point) => (point.totalEarnings > top.totalEarnings ? point : top),
     byWeekday[0],
@@ -60,7 +79,7 @@ export function AnalyticsView() {
       <PageHeader
         eyebrow="Analytics"
         title="Income patterns"
-        description="Placeholder visualizations built from your logged shifts."
+        description="See how your earnings change across shifts, weeks, and workplaces."
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -11,6 +11,8 @@ export interface Workplace {
   defaultHourlyWage: number;
 }
 
+export type WorkplaceDraft = Omit<Workplace, "id">;
+
 export interface Shift {
   id: string;
   /** Local calendar date as `YYYY-MM-DD`. */

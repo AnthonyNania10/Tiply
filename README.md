@@ -5,8 +5,9 @@ tipped workers — servers, bartenders, casino employees, valets, and anyone els
 whose paycheck is only part of the story.
 
 This repository is an **MVP skeleton**: the full frontend, navigation, and
-component library are built out against realistic mock data so the product can
-be put in front of real tipped workers before any backend exists.
+component library use browser storage so the product can be put in front of
+real tipped workers before any backend exists. New users start with no shifts
+or earnings and build their own history.
 
 ---
 
@@ -45,7 +46,7 @@ Recharts · Lucide icons · Vitest.
 | `/shifts`       | Shift history       | Week / month / custom date-range filters                      |
 | `/shifts/new`   | Add shift           | The fast logging flow                                         |
 | `/analytics`    | Analytics           | Income over time, best days, cash vs. card                    |
-| `/tax-summary`  | Tax & income        | Reported income plus a placeholder set-aside estimate         |
+| `/tax-summary`  | Tax & income        | Reported income plus a simple set-aside estimate              |
 | `/profile`      | Profile & settings  | Account, work defaults, currency, logout                      |
 
 Everything except `/` lives in the `(app)` route group, which wraps pages in the
@@ -87,7 +88,7 @@ src/
 │                                   control, EmptyState, Skeleton
 │
 ├── data/
-│   ├── mock-data.ts                Workplaces, demo profile, seeded generator
+│   ├── mock-data.ts                Starter workplaces and profile defaults
 │   ├── local-store.ts              Demo persistence (localStorage)
 │   ├── shift-repository.ts         ShiftRepository interface + local impl
 │   └── profile-repository.ts       ProfileRepository interface + local impl
@@ -141,10 +142,10 @@ The typical path is: open → tap an hours chip → type cash → type card → 
 | Area                   | How it behaves today                                                                                 |
 | ---------------------- | ----------------------------------------------------------------------------------------------------- |
 | **Authentication**     | None. The landing page CTAs link straight to `/dashboard`; "Log out" clears the browser's demo data. |
-| **Shift history**      | `generateSeedShifts()` builds ~16 weeks of deterministic, realistic shifts ending today.             |
-| **Saved shifts**       | Stored in `localStorage` under `tiply.demo.v1` and merged over the seed data on every read.          |
+| **Shift history**      | Starts empty. Only shifts entered by the user appear in the app.                                    |
+| **Saved shifts**       | Stored in `localStorage` under `tiply.demo.v1`.                                                     |
 | **Profile settings**   | Saved to the same `localStorage` record.                                                              |
-| **Workplaces**         | A fixed list in `mock-data.ts`; they cannot be created or edited in the UI yet.                      |
+| **Workplaces**         | Includes starter workplaces; users can add more from Profile and they persist in `localStorage`.    |
 | **Tax estimate**       | A flat percentage of reported income. No brackets, withholding, or filing status — and labeled as an estimate, not advice. |
 
 ### Ready for a real backend
@@ -155,6 +156,7 @@ The UI never touches storage directly. It goes through two interfaces:
 // src/data/shift-repository.ts
 export interface ShiftRepository {
   listWorkplaces(): Promise<Workplace[]>;
+  createWorkplace(draft: WorkplaceDraft): Promise<Workplace>;
   listShifts(): Promise<Shift[]>;
   createShift(draft: ShiftDraft): Promise<Shift>;
   deleteShift(id: string): Promise<void>;
@@ -201,6 +203,8 @@ validating the idea with real tipped workers.
 
 `npm test` covers the parts where a bug would quietly produce wrong money:
 
+- `src/data/local-store.test.ts` — empty first run, persisted shifts, and
+  persisted custom workplaces.
 - `src/lib/earnings.test.ts` — shift totals, effective hourly rate, period
   summaries, range filtering, sorting, and the weekly/monthly/weekday series.
 - `src/lib/date.test.ts` — local-time `YYYY-MM-DD` parsing (the native parser

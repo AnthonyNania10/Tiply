@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, LogOut, Receipt } from "lucide-react";
+import { Check, LogOut, Plus, Receipt, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -13,7 +13,12 @@ import { LoadingScreen } from "@/components/ui/skeleton";
 import { useTiply } from "@/hooks/use-tiply";
 import { formatCurrency } from "@/lib/format";
 import { parseNumericInput } from "@/lib/utils";
-import type { CurrencyCode, UserProfile, Workplace } from "@/types";
+import type {
+  CurrencyCode,
+  UserProfile,
+  Workplace,
+  WorkplaceDraft,
+} from "@/types";
 
 const CURRENCIES: { value: CurrencyCode; label: string }[] = [
   { value: "USD", label: "USD — US dollar" },
@@ -25,7 +30,14 @@ const CURRENCIES: { value: CurrencyCode; label: string }[] = [
 
 export function ProfileView() {
   const router = useRouter();
-  const { isLoading, profile, workplaces, updateProfile, signOut } = useTiply();
+  const {
+    isLoading,
+    profile,
+    workplaces,
+    addWorkplace,
+    updateProfile,
+    signOut,
+  } = useTiply();
 
   if (isLoading) return <LoadingScreen label="Loading your profile" />;
 
@@ -49,32 +61,11 @@ export function ProfileView() {
         onSave={updateProfile}
       />
 
-      <Card>
-        <CardHeader
-          title="Workplaces"
-          description="Jobs you can pick from when logging a shift."
-        />
-        <ul className="divide-y divide-line">
-          {workplaces.map((workplace) => (
-            <li
-              key={workplace.id}
-              className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-            >
-              <div>
-                <p className="text-sm font-medium text-ink">{workplace.name}</p>
-                <p className="text-xs text-muted">{workplace.role}</p>
-              </div>
-              <p className="tabular text-sm text-muted">
-                {formatCurrency(workplace.defaultHourlyWage, profile.currency)}/hr
-              </p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-xs text-subtle">
-          Adding and editing workplaces arrives with accounts. For now this list
-          comes from the demo data set.
-        </p>
-      </Card>
+      <WorkplacesCard
+        workplaces={workplaces}
+        currency={profile.currency}
+        onAdd={addWorkplace}
+      />
 
       <Link
         href="/tax-summary"
@@ -97,6 +88,172 @@ export function ProfileView() {
         Logging out clears the demo data stored in this browser.
       </p>
     </div>
+  );
+}
+
+function WorkplacesCard({
+  workplaces,
+  currency,
+  onAdd,
+}: {
+  workplaces: Workplace[];
+  currency: CurrencyCode;
+  onAdd: (draft: WorkplaceDraft) => Promise<Workplace>;
+}) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    role: "",
+    defaultHourlyWage: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [savedName, setSavedName] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = form.name.trim();
+    const role = form.role.trim();
+    const defaultHourlyWage = parseNumericInput(form.defaultHourlyWage);
+
+    if (!name || !role) {
+      setError("Enter both a workplace name and your role.");
+      return;
+    }
+    if (defaultHourlyWage < 0) {
+      setError("Hourly wage can't be negative.");
+      return;
+    }
+
+    setError(null);
+    setIsSaving(true);
+    try {
+      const created = await onAdd({ name, role, defaultHourlyWage });
+      setSavedName(created.name);
+      setForm({ name: "", role: "", defaultHourlyWage: "" });
+      setIsAdding(false);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader
+        title="Workplaces"
+        description="Jobs you can pick from when logging a shift."
+        action={
+          <Button
+            size="sm"
+            variant={isAdding ? "ghost" : "secondary"}
+            onClick={() => {
+              setIsAdding((current) => !current);
+              setError(null);
+              setSavedName(null);
+            }}
+          >
+            {isAdding ? (
+              <X aria-hidden className="h-4 w-4" />
+            ) : (
+              <Plus aria-hidden className="h-4 w-4" />
+            )}
+            {isAdding ? "Cancel" : "Add workplace"}
+          </Button>
+        }
+      />
+
+      {isAdding ? (
+        <form
+          onSubmit={handleSubmit}
+          className="mb-5 space-y-4 rounded-2xl border border-line bg-canvas p-4"
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Workplace name" htmlFor="new-workplace-name">
+              <TextInput
+                id="new-workplace-name"
+                value={form.name}
+                autoFocus
+                placeholder="e.g. The Blue Room"
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    name: event.target.value,
+                  }))
+                }
+              />
+            </Field>
+            <Field label="Your role" htmlFor="new-workplace-role">
+              <TextInput
+                id="new-workplace-role"
+                value={form.role}
+                placeholder="e.g. Bartender"
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    role: event.target.value,
+                  }))
+                }
+              />
+            </Field>
+          </div>
+          <Field
+            label="Default hourly wage"
+            htmlFor="new-workplace-wage"
+            hint="Tiply will prefill this wage when you log a shift here."
+          >
+            <AmountInput
+              id="new-workplace-wage"
+              value={form.defaultHourlyWage}
+              prefix="$"
+              suffix="/hr"
+              placeholder="0"
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  defaultHourlyWage: event.target.value,
+                }))
+              }
+            />
+          </Field>
+          {error ? (
+            <p role="alert" className="text-sm text-red-600">
+              {error}
+            </p>
+          ) : null}
+          <Button type="submit" disabled={isSaving}>
+            <Plus aria-hidden className="h-4 w-4" />
+            {isSaving ? "Adding…" : "Add workplace"}
+          </Button>
+        </form>
+      ) : null}
+
+      {savedName ? (
+        <p
+          role="status"
+          className="mb-3 flex items-center gap-1.5 text-sm font-medium text-brand-dark"
+        >
+          <Check aria-hidden className="h-4 w-4" />
+          {savedName} was added.
+        </p>
+      ) : null}
+
+      <ul className="divide-y divide-line">
+        {workplaces.map((workplace) => (
+          <li
+            key={workplace.id}
+            className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+          >
+            <div>
+              <p className="text-sm font-medium text-ink">{workplace.name}</p>
+              <p className="text-xs text-muted">{workplace.role}</p>
+            </div>
+            <p className="tabular text-sm text-muted">
+              {formatCurrency(workplace.defaultHourlyWage, currency)}/hr
+            </p>
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }
 

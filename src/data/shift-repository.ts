@@ -1,10 +1,16 @@
 import {
   loadShifts,
+  loadWorkplaces,
   persistAddedShift,
+  persistAddedWorkplace,
   persistRemovedShift,
 } from "@/data/local-store";
-import { MOCK_WORKPLACES } from "@/data/mock-data";
-import type { Shift, ShiftDraft, Workplace } from "@/types";
+import type {
+  Shift,
+  ShiftDraft,
+  Workplace,
+  WorkplaceDraft,
+} from "@/types";
 
 /**
  * The contract every storage backend must satisfy. Swapping the mock for
@@ -14,21 +20,31 @@ import type { Shift, ShiftDraft, Workplace } from "@/types";
  */
 export interface ShiftRepository {
   listWorkplaces(): Promise<Workplace[]>;
+  createWorkplace(draft: WorkplaceDraft): Promise<Workplace>;
   listShifts(): Promise<Shift[]>;
   createShift(draft: ShiftDraft): Promise<Shift>;
   deleteShift(id: string): Promise<void>;
 }
 
-function createId(): string {
+function createId(prefix: "shift" | "workplace"): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `shift-${crypto.randomUUID()}`;
+    return `${prefix}-${crypto.randomUUID()}`;
   }
-  return `shift-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export const localShiftRepository: ShiftRepository = {
   async listWorkplaces() {
-    return MOCK_WORKPLACES;
+    return loadWorkplaces();
+  },
+
+  async createWorkplace(draft) {
+    const workplace: Workplace = {
+      ...draft,
+      id: createId("workplace"),
+    };
+    persistAddedWorkplace(workplace);
+    return workplace;
   },
 
   async listShifts() {
@@ -38,7 +54,7 @@ export const localShiftRepository: ShiftRepository = {
   async createShift(draft) {
     const shift: Shift = {
       ...draft,
-      id: createId(),
+      id: createId("shift"),
       createdAt: new Date().toISOString(),
     };
     persistAddedShift(shift);

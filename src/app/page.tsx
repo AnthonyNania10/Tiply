@@ -133,7 +133,7 @@ export default function LandingPage() {
       <footer className="border-t border-line">
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-6 py-6 text-xs text-subtle">
           <span>© {new Date().getFullYear()} Tiply</span>
-          <span>MVP demo — sample data, no account required.</span>
+          <span>MVP demo — browser-stored data, no account required.</span>
         </div>
       </footer>
     </div>

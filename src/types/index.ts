@@ -6,5 +6,6 @@ export type {
   ShiftDraft,
   ShiftTotals,
   Workplace,
+  WorkplaceDraft,
 } from "./shift";
 export type { CurrencyCode, UserProfile } from "./user";

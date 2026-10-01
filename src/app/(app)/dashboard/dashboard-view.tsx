@@ -127,17 +127,19 @@ export function DashboardView() {
         Add Shift
       </ButtonLink>
 
-      <Card>
-        <CardHeader
-          title="Earnings trend"
-          description="Total earnings per week, last 8 weeks."
-        />
-        <EarningsChart
-          data={chartData}
-          currency={profile.currency}
-          label="Total earnings per week over the last 8 weeks"
-        />
-      </Card>
+      {shifts.length > 0 ? (
+        <Card>
+          <CardHeader
+            title="Earnings trend"
+            description="Total earnings per week, last 8 weeks."
+          />
+          <EarningsChart
+            data={chartData}
+            currency={profile.currency}
+            label="Total earnings per week over the last 8 weeks"
+          />
+        </Card>
+      ) : null}
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
