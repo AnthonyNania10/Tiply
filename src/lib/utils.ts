@@ -1,8 +1,13 @@
+import { twMerge } from "tailwind-merge";
+
 type ClassValue = string | number | false | null | undefined;
 
-/** Minimal class-name joiner; keeps components readable without a dependency. */
+/**
+ * Joins class names and resolves Tailwind conflicts, so a caller passing
+ * `hidden` can override a component's built-in `inline-flex`.
+ */
 export function cn(...values: ClassValue[]): string {
-  return values.filter(Boolean).join(" ");
+  return twMerge(values.filter(Boolean).join(" "));
 }
 
 /** Parses user-entered money/number input, tolerating blanks and `$`. */

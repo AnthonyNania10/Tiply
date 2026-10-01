@@ -26,7 +26,12 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("mb-4 flex items-start justify-between gap-3", className)}>
+    <div
+      className={cn(
+        "mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
+        className,
+      )}
+    >
       <div className="space-y-1">
         <h2 className="text-base font-semibold text-ink">{title}</h2>
         {description ? (
