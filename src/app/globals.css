@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #faf9f7;
+  --color-surface: #ffffff;
+  --color-ink: #1a1a19;
+  --color-muted: #6f6a64;
+  --color-subtle: #9a938b;
+  --color-line: #ebe8e3;
+
+  --color-brand: #0b8f6a;
+  --color-brand-dark: #07674d;
+  --color-brand-soft: #e6f4ef;
+
+  --color-cash: #0b8f6a;
+  --color-card: #5b7cfa;
+  --color-wage: #c9b79a;
+
+  --color-positive: #0b8f6a;
+  --color-caution: #b4722a;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --shadow-card: 0 1px 2px rgba(26, 26, 25, 0.04),
+    0 10px 30px -22px rgba(26, 26, 25, 0.45);
+  --shadow-raised: 0 6px 20px -8px rgba(11, 143, 106, 0.55);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Keeps the bottom navigation clear of the iOS home indicator. */
+@utility pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+
+@utility mb-safe {
+  margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
