@@ -25,10 +25,22 @@
   --shadow-card: 0 1px 2px rgba(26, 26, 25, 0.04),
     0 10px 30px -22px rgba(26, 26, 25, 0.45);
   --shadow-raised: 0 6px 20px -8px rgba(11, 143, 106, 0.55);
+  /* Reserved for the marketing mockups, which need to read as a real device. */
+  --shadow-float: 0 1px 2px rgba(26, 26, 25, 0.05),
+    0 18px 40px -20px rgba(26, 26, 25, 0.28),
+    0 60px 90px -60px rgba(26, 26, 25, 0.35);
 }
 
 html {
   -webkit-tap-highlight-color: transparent;
+  /* Anchor links land below the sticky marketing header instead of under it. */
+  scroll-padding-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
@@ -40,6 +52,40 @@ body {
 @utility tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+/*
+ * Mockup chart bars grow from their baseline. Deliberately CSS rather than
+ * Framer Motion: the hero renders above the fold, so the bars must reach full
+ * height from the server-rendered HTML even before (or without) hydration.
+ * The reduced-motion block below collapses the duration automatically.
+ */
+@keyframes grow-bar {
+  from {
+    transform: scaleY(0.02);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@utility animate-grow-bar {
+  transform-origin: bottom;
+  animation: grow-bar 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes grow-track {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@utility animate-grow-track {
+  transform-origin: left;
+  animation: grow-track 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Keeps the bottom navigation clear of the iOS home indicator. */
