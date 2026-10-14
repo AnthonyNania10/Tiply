@@ -13,7 +13,7 @@
  *    boundaries.
  */
 
-import { thisMonthRange, thisWeekRange } from "@/lib/date";
+import { thisMonthRange, thisWeekRange, weekdayName } from "@/lib/date";
 import {
   bestShift,
   filterByRange,
@@ -112,6 +112,14 @@ export const SAMPLE_METRICS = {
 /** The strongest weekday by average earnings per shift. */
 export const SAMPLE_BEST_WEEKDAY = SAMPLE_METRICS.weekdaySeries.reduce(
   (best, point) => (point.totalEarnings > best.totalEarnings ? point : best),
+);
+
+/**
+ * The same day spelled out. `EarningsPoint.label` is abbreviated for chart
+ * axes, which reads too terse in a headline figure or a sentence.
+ */
+export const SAMPLE_BEST_WEEKDAY_NAME = weekdayName(
+  Number(SAMPLE_BEST_WEEKDAY.key),
 );
 
 export const SAMPLE_BEST_SHIFT_TOTALS = SAMPLE_METRICS.bestShift

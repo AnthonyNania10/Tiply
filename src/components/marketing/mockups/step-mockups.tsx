@@ -1,10 +1,17 @@
-import { Calendar, CalendarRange, Clock, CreditCard, Sun } from "lucide-react";
+import {
+  Banknote,
+  Calendar,
+  CalendarRange,
+  Clock,
+  CreditCard,
+  Sun,
+} from "lucide-react";
 
 import { MockRankedBars } from "@/components/marketing/mockups/mock-charts";
 import { MockFrame } from "@/components/marketing/mockups/mock-frame";
 import {
   SAMPLE_BEST_SHIFT_TOTALS,
-  SAMPLE_BEST_WEEKDAY,
+  SAMPLE_BEST_WEEKDAY_NAME,
   SAMPLE_METRICS,
   SAMPLE_SWING,
   sampleWorkplaceName,
@@ -25,7 +32,7 @@ export function LogShiftMockup() {
     { icon: Calendar, label: "Date", value: formatShiftDate(shift.date) },
     { icon: Clock, label: "Hours worked", value: formatHours(shift.hoursWorked) },
     {
-      icon: CreditCard,
+      icon: Banknote,
       label: "Cash tips",
       value: formatCurrency(shift.cashTips),
     },
@@ -227,7 +234,7 @@ export function InsightsMockup() {
             Average per shift by day
           </p>
           <p className="text-[0.625rem] font-semibold text-brand-dark">
-            {SAMPLE_BEST_WEEKDAY.label} is your best day
+            {SAMPLE_BEST_WEEKDAY_NAME}s are your best days
           </p>
         </div>
         <MockRankedBars data={weekdaySeries} className="mt-3" />

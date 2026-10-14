@@ -5,11 +5,17 @@ import type { ReactNode } from "react";
 
 type Direction = "up" | "left" | "right" | "none";
 
-const OFFSET: Record<Direction, { x: number; y: number }> = {
-  up: { x: 0, y: 24 },
-  left: { x: -24, y: 0 },
-  right: { x: 24, y: 0 },
-  none: { x: 0, y: 0 },
+/**
+ * Horizontal offsets are intentionally unused. An element sitting at
+ * `x: 24` while it waits to enter the viewport expands `document`
+ * `scrollWidth` on a 390px phone, which is how a 12px page-wide
+ * overflow showed up in capture. Vertical motion does not.
+ */
+const OFFSET: Record<Direction, { y: number }> = {
+  up: { y: 24 },
+  left: { y: 24 },
+  right: { y: 24 },
+  none: { y: 0 },
 };
 
 /**
@@ -37,13 +43,13 @@ export function Reveal({
     return <div className={className}>{children}</div>;
   }
 
-  const { x, y } = OFFSET[direction];
+  const { y } = OFFSET[direction];
 
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, x, y }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >

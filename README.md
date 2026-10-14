@@ -1,8 +1,8 @@
 # Tiply
 
-**Know what you make.** Tiply is a mobile-first income and tip tracker for
-tipped workers — servers, bartenders, casino employees, valets, and anyone else
-whose paycheck is only part of the story.
+**Track your tips. Understand your income.** Tiply is a mobile-first income
+and tip tracker for tipped workers — servers, bartenders, casino employees,
+valets, and anyone else whose paycheck is only part of the story.
 
 This repository is an **MVP skeleton**: the full frontend, navigation, and
 component library use browser storage so the product can be put in front of
@@ -33,7 +33,7 @@ No environment variables, database, or account are required. There is no login
 step: the landing page CTAs drop you straight into the demo app.
 
 **Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 ·
-Recharts · Lucide icons · Vitest.
+Recharts · Lucide icons · Framer Motion · Vitest.
 
 ---
 
@@ -41,7 +41,9 @@ Recharts · Lucide icons · Vitest.
 
 | Route           | Page                | Notes                                                        |
 | --------------- | ------------------- | ------------------------------------------------------------ |
-| `/`             | Landing             | Marketing page, no app chrome                                 |
+| `/`             | Landing             | Marketing page with sticky header and footer                  |
+| `/privacy`      | Privacy Policy      | How the demo stores data (browser-local)                      |
+| `/terms`        | Terms of Service    | What the demo is and is not                                   |
 | `/dashboard`    | Dashboard           | Monthly totals, earnings chart, recent shifts                 |
 | `/shifts`       | Shift history       | Week / month / custom date-range filters                      |
 | `/shifts/new`   | Add shift           | The fast logging flow                                         |
@@ -49,11 +51,17 @@ Recharts · Lucide icons · Vitest.
 | `/tax-summary`  | Tax & income        | Reported income plus a simple set-aside estimate              |
 | `/profile`      | Profile & settings  | Account, work defaults, currency, logout                      |
 
-Everything except `/` lives in the `(app)` route group, which wraps pages in the
-app shell: a five-item bottom navigation on mobile (Home, History, a raised
-center **Add Shift** button, Analytics, Profile) that becomes a left sidebar at
-the `lg` breakpoint. The tax summary is reachable from the dashboard and profile
-rather than taking a sixth slot in the primary navigation.
+The public pages (`/`, `/privacy`, `/terms`) live in the `(marketing)` route
+group and share a sticky header and footer. Everything else lives in the
+`(app)` route group, which wraps pages in the app shell: a five-item bottom
+navigation on mobile (Home, History, a raised center **Add Shift** button,
+Analytics, Profile) that becomes a left sidebar at the `lg` breakpoint. The
+tax summary is reachable from the dashboard and profile rather than taking a
+sixth slot in the primary navigation.
+
+Landing page CTAs go to real product routes (`/dashboard`, `/shifts/new`).
+There is no signup: the app is a browser-local demo. Premium features on the
+pricing section are labelled planned, not available.
 
 ---
 
@@ -64,7 +72,12 @@ src/
 ├── app/
 │   ├── layout.tsx                  Root layout: fonts, metadata, viewport
 │   ├── globals.css                 Tailwind v4 theme tokens and utilities
-│   ├── page.tsx                    Landing page
+│   ├── robots.ts, sitemap.ts, opengraph-image.tsx
+│   ├── (marketing)/
+│   │   ├── layout.tsx              Sticky header + footer
+│   │   ├── page.tsx                Landing page
+│   │   ├── privacy/page.tsx
+│   │   └── terms/page.tsx
 │   └── (app)/
 │       ├── layout.tsx              TiplyProvider + AppShell
 │       ├── dashboard/              page.tsx + dashboard-view.tsx
@@ -75,6 +88,9 @@ src/
 │       └── profile/                page.tsx + profile-view.tsx
 │
 ├── components/
+│   ├── landing/                    Hero, problem, how-it-works, features,
+│   │                               audience, clarity, pricing, final CTA
+│   ├── marketing/                  Header, footer, reveal, section, mockups
 │   ├── add-shift-form.tsx          The fast shift-entry form
 │   ├── app-shell.tsx               Sidebar + top bar + bottom nav frame
 │   ├── bottom-navigation.tsx       Mobile tab bar
@@ -88,6 +104,7 @@ src/
 │                                   control, EmptyState, Skeleton
 │
 ├── data/
+│   ├── landing-sample.ts           Sample shifts for marketing mockups
 │   ├── mock-data.ts                Starter workplaces and profile defaults
 │   ├── local-store.ts              Demo persistence (localStorage)
 │   ├── shift-repository.ts         ShiftRepository interface + local impl

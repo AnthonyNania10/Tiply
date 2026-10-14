@@ -1,6 +1,6 @@
-import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
+import { HashLink } from "@/components/ui/hash-link";
 import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
@@ -56,10 +56,10 @@ export function ButtonLink({
   className,
   children,
   ...props
-}: ComponentProps<typeof Link> & StyleProps & { children: ReactNode }) {
+}: ComponentProps<typeof HashLink> & StyleProps & { children: ReactNode }) {
   return (
-    <Link className={classesFor(variant, size, className)} {...props}>
+    <HashLink className={classesFor(variant, size, className)} {...props}>
       {children}
-    </Link>
+    </HashLink>
   );
 }

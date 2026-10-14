@@ -55,23 +55,25 @@ function ChartTable({
   caption: string;
 }) {
   return (
-    <table className="sr-only">
-      <caption>{caption}</caption>
-      <thead>
-        <tr>
-          <th scope="col">Period</th>
-          <th scope="col">Total earnings</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((point) => (
-          <tr key={point.key}>
-            <th scope="row">{point.label}</th>
-            <td>{formatCurrency(point.totalEarnings, currency)}</td>
+    <div className="sr-only">
+      <table>
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Period</th>
+            <th scope="col">Total earnings</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {data.map((point) => (
+            <tr key={point.key}>
+              <th scope="row">{point.label}</th>
+              <td>{formatCurrency(point.totalEarnings, currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

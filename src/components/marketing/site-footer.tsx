@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Container } from "@/components/marketing/section";
+import { HashLink } from "@/components/ui/hash-link";
 import { Logo } from "@/components/logo";
 
 const LINK_GROUPS = [
@@ -49,12 +48,12 @@ export function SiteFooter() {
                 <ul className="mt-4 space-y-3">
                   {group.links.map((link) => (
                     <li key={link.href}>
-                      <Link
+                      <HashLink
                         href={link.href}
                         className="rounded text-sm text-muted transition-colors hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                       >
                         {link.label}
-                      </Link>
+                      </HashLink>
                     </li>
                   ))}
                 </ul>

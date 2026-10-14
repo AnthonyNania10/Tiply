@@ -6,6 +6,7 @@ import { MockFrame } from "@/components/marketing/mockups/mock-frame";
 import { StatCard } from "@/components/stat-card";
 import {
   SAMPLE_BEST_WEEKDAY,
+  SAMPLE_BEST_WEEKDAY_NAME,
   SAMPLE_METRICS,
 } from "@/data/landing-sample";
 import { formatCurrency, formatHours } from "@/lib/format";
@@ -52,7 +53,7 @@ export function AnalyticsMockup({ className }: { className?: string }) {
         />
         <StatCard
           label="Highest-earning day"
-          value={SAMPLE_BEST_WEEKDAY.label}
+          value={SAMPLE_BEST_WEEKDAY_NAME}
           caption={`${formatCurrency(SAMPLE_BEST_WEEKDAY.totalEarnings)} average per shift`}
           icon={CalendarCheck}
           className="rounded-2xl shadow-none"

@@ -4,6 +4,7 @@ import {
   REFERENCE_DATE,
   SAMPLE_BEST_SHIFT_TOTALS,
   SAMPLE_BEST_WEEKDAY,
+  SAMPLE_BEST_WEEKDAY_NAME,
   SAMPLE_METRICS,
   SAMPLE_SHIFTS,
   SAMPLE_SWING,
@@ -68,6 +69,10 @@ describe("landing sample data", () => {
         point.totalEarnings,
       );
     }
+    expect(SAMPLE_BEST_WEEKDAY_NAME).toBe("Saturday");
+    expect(SAMPLE_BEST_WEEKDAY_NAME.startsWith(SAMPLE_BEST_WEEKDAY.label)).toBe(
+      true,
+    );
   });
 
   it("makes the best shift the highest-earning one in the history", () => {

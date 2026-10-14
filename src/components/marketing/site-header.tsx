@@ -2,10 +2,10 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Logo } from "@/components/logo";
+import { HashLink } from "@/components/ui/hash-link";
 import { ButtonLink } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +45,9 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-colors duration-300",
+        "relative sticky top-0 z-50 transition-colors duration-300",
+        // `relative` lets the mobile menu overlay the page instead of pushing
+        // it down, so in-page hash links still land under the sticky header.
         scrolled || menuOpen
           ? "border-b border-line bg-canvas/85 backdrop-blur-md"
           : "border-b border-transparent",
@@ -56,13 +58,13 @@ export function SiteHeader() {
 
         <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => (
-            <Link
+            <HashLink
               key={link.href}
               href={link.href}
               className="rounded-full px-3.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-brand-soft hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               {link.label}
-            </Link>
+            </HashLink>
           ))}
         </nav>
 
@@ -99,33 +101,33 @@ export function SiteHeader() {
         {menuOpen ? (
           <motion.div
             id="marketing-mobile-menu"
-            initial={prefersReducedMotion ? undefined : { height: 0, opacity: 0 }}
-            animate={prefersReducedMotion ? undefined : { height: "auto", opacity: 1 }}
-            exit={prefersReducedMotion ? undefined : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="overflow-hidden border-t border-line bg-canvas lg:hidden"
+            initial={prefersReducedMotion ? undefined : { opacity: 0, y: -8 }}
+            animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? undefined : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute inset-x-0 top-full border-b border-line bg-canvas shadow-card lg:hidden"
           >
             <nav
               aria-label="Mobile"
               className="mx-auto flex w-full max-w-6xl flex-col px-5 py-3 sm:px-8"
             >
               {NAV_LINKS.map((link) => (
-                <Link
+                <HashLink
                   key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className="rounded-2xl px-3 py-3 text-sm font-medium text-ink transition-colors hover:bg-brand-soft hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   {link.label}
-                </Link>
+                </HashLink>
               ))}
-              <Link
+              <HashLink
                 href="/dashboard"
                 onClick={() => setMenuOpen(false)}
                 className="rounded-2xl px-3 py-3 text-sm font-medium text-ink transition-colors hover:bg-brand-soft hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:hidden"
               >
                 Open the app
-              </Link>
+              </HashLink>
             </nav>
           </motion.div>
         ) : null}

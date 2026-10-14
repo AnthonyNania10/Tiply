@@ -7,7 +7,7 @@ import {
   Section,
   SectionHeading,
 } from "@/components/marketing/section";
-import { SAMPLE_BEST_WEEKDAY, SAMPLE_METRICS } from "@/data/landing-sample";
+import { SAMPLE_BEST_WEEKDAY_NAME, SAMPLE_METRICS } from "@/data/landing-sample";
 import { formatCurrency } from "@/lib/format";
 
 const { month } = SAMPLE_METRICS;
@@ -31,7 +31,7 @@ const HIGHLIGHTS = [
   {
     icon: CalendarCheck,
     label: "Highest-earning day",
-    value: SAMPLE_BEST_WEEKDAY.label,
+    value: SAMPLE_BEST_WEEKDAY_NAME,
   },
 ];
 
